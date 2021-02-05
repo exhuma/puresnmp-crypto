@@ -8,7 +8,7 @@ readme = "README.rst"
 homepage = "https://pypi.org/project/puresnmp/"
 repository = "https://github.com/exhuma/puresnmp-priv-crypto"
 packages = [
-    {include="puresnmp"}
+    {include="puresnmp_plugins"}
 ]
 
 [tool.poetry.dependencies]
@@ -28,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov=puresnmp --cov-report=term-missing --cov-fail-under=100"
+addopts = "--cov=puresnmp_plugins --cov-report=term-missing --cov-fail-under=100"
 testpaths = [
     "tests",
 ]

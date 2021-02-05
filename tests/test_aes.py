@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-import puresnmp.priv.aes as aes
+import puresnmp_plugins.priv.aes as aes
 
 
 @pytest.mark.parametrize(
@@ -51,7 +51,7 @@ def test_decrypt():
 
 
 def test_salt_overflow():
-    with patch("puresnmp.priv.aes.randint") as randint:
+    with patch("puresnmp_plugins.priv.aes.randint") as randint:
         maxval = 0xffffffffffffffff
         randint.return_value = maxval - 1
         pot = aes.reference_saltpot()
