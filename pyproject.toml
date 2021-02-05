@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "puresnmp-priv-crypto"
+version = "1.0.0"
+description = "Implementation for SNMPv3 encryption in puresnmp"
+authors = ["Michel Albert <michel.albert@post.lu>"]
+license = "MIT"
+readme = "README.rst"
+homepage = "https://pypi.org/project/puresnmp/"
+repository = "https://github.com/exhuma/puresnmp-priv-crypto"
+packages = [
+    {include="puresnmp"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+pycrypto = "^2.6.1"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.790"
+black = {version = "^20.8b1", allow-prereleases = true}
+pytest = "^6.2.2"
+pylint = "^2.6.0"
+pytest-cov = "^2.11.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov=puresnmp --cov-report=term-missing --cov-fail-under=100"
+testpaths = [
+    "tests",
+]
