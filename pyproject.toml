@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "puresnmp-priv-crypto"
+name = "puresnmp-crypto"
 version = "1.0.0"
 description = "Implementation for SNMPv3 encryption in puresnmp"
 authors = ["Michel Albert <michel.albert@post.lu>"]
 license = "MIT"
 readme = "README.rst"
 homepage = "https://pypi.org/project/puresnmp/"
-repository = "https://github.com/exhuma/puresnmp-priv-crypto"
+repository = "https://github.com/exhuma/puresnmp-crypto"
 packages = [
     {include="puresnmp_plugins"}
 ]
