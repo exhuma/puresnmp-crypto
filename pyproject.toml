@@ -1,30 +1,28 @@
-[tool.poetry]
+[project]
 name = "puresnmp-crypto"
 version = "1.0.0"
 description = "Implementation for SNMPv3 encryption in puresnmp"
-authors = ["Michel Albert <michel.albert@post.lu>"]
-license = "MIT"
+authors = [{name="Michel Albert", email="michel.albert@post.lu"}]
+license = {text="MIT"}
 readme = "README.rst"
-homepage = "https://pypi.org/project/puresnmp/"
-repository = "https://github.com/exhuma/puresnmp-crypto"
-packages = [
-    {include="puresnmp_plugins"}
+dependencies = [
+    "cryptography >= 38.0.1",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.6"
-cryptography = ">38.0.1"
+[project.urls]
+homepage = "https://pypi.org/project/puresnmp/"
+repository = "https://github.com/exhuma/puresnmp-crypto"
 
-[tool.poetry.dev-dependencies]
-mypy = "^0.790"
-black = {version = "^20.8b1", allow-prereleases = true}
-pytest = "^6.2.2"
-pylint = "^2.6.0"
-pytest-cov = "^2.11.1"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "black",
+    "pylint",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -32,3 +30,7 @@ addopts = "--cov=puresnmp_plugins --cov-report=term-missing --cov-fail-under=100
 testpaths = [
     "tests",
 ]
+
+[build-system]
+requires = ["setuptools >= 64.0"]
+build-backend = "setuptools.build_meta"
