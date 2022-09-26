@@ -48,11 +48,11 @@ def reference_saltpot() -> Generator[int, None, None]:
     Following :rfc:`3414` this starts at a random number and increases on
     each subsequent retrieval.
     """
-    salt = randint(1, 0xffffffffffffffff - 1)
+    salt = randint(1, 0xFFFFFFFFFFFFFFFF - 1)
     while True:
         yield salt
         salt += 1
-        if salt == 0xffffffffffffffff:
+        if salt == 0xFFFFFFFFFFFFFFFF:
             salt = 0
 
 

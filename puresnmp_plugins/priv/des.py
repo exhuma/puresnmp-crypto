@@ -47,11 +47,11 @@ def reference_saltpot() -> Generator[int, None, None]:
     Following :rfc:`3414` this starts at a random number and increases on
     each subsequent retrieval.
     """
-    salt = randint(1, 0xffffffff - 1)
+    salt = randint(1, 0xFFFFFFFF - 1)
     while True:
         yield salt
         salt += 1
-        if salt == 0xffffffff:
+        if salt == 0xFFFFFFFF:
             salt = 0
 
 
@@ -73,7 +73,7 @@ def encrypt_data(
     pre_iv = localised_key[8:]
 
     local_salt = next(SALTPOT)
-    salt = (engine_boots & 0xff).to_bytes(4, "big") + (local_salt & 0xff).to_bytes(
+    salt = (engine_boots & 0xFF).to_bytes(4, "big") + (local_salt & 0xFF).to_bytes(
         4, "big"
     )
     init_vector = bytes(a ^ b for a, b in zip(salt, pre_iv))
