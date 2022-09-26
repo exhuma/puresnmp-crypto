@@ -52,7 +52,7 @@ def test_decrypt():
 
 def test_salt_overflow():
     with patch("puresnmp_plugins.priv.aes.randint") as randint:
-        maxval = 0xffffffffffffffff
+        maxval = 0xFFFFFFFFFFFFFFFF
         randint.return_value = maxval - 1
         pot = aes.reference_saltpot()
         value = next(pot)

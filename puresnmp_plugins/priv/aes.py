@@ -7,7 +7,7 @@ to :rfc:`3826`
 from random import randint
 from typing import Generator, NamedTuple
 
-from Crypto.Cipher import AES
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 IDENTIFIER = "aes"
 IANA_ID = 4
@@ -48,11 +48,11 @@ def reference_saltpot() -> Generator[int, None, None]:
     Following :rfc:`3414` this starts at a random number and increases on
     each subsequent retrieval.
     """
-    salt = randint(1, 0xffffffffffffffff - 1)
+    salt = randint(1, 0xFFFFFFFFFFFFFFFF - 1)
     while True:
         yield salt
         salt += 1
-        if salt == 0xffffffffffffffff:
+        if salt == 0xFFFFFFFFFFFFFFFF:
             salt = 0
 
 
@@ -88,9 +88,10 @@ def encrypt_data(
     salt = next(SALTPOT).to_bytes(8, "big")
     iv = get_iv(engine_boots, engine_time, salt)
     aes_key = localised_key[:16]
-    cipher = AES.new(aes_key, AES.MODE_CFB, iv, segment_size=128)
     padded = pad_packet(data, 16)
-    output = cipher.encrypt(padded)
+    cipher = Cipher(algorithms.AES(aes_key), modes.CFB(iv))
+    encryptor = cipher.encryptor()
+    output = encryptor.update(padded) + encryptor.finalize()
     return EncryptionResult(output, salt)
 
 
@@ -107,7 +108,8 @@ def decrypt_data(
     """
     iv = get_iv(engine_boots, engine_time, salt)
     aes_key = localised_key[:16]
-    cipher = AES.new(aes_key, AES.MODE_CFB, iv, segment_size=128)
     padded = pad_packet(data, 16)
-    output = cipher.decrypt(padded)
+    cipher = Cipher(algorithms.AES(aes_key), modes.CFB(iv))
+    decryptor = cipher.decryptor()
+    output = decryptor.update(padded) + decryptor.finalize()
     return output

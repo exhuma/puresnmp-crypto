@@ -6,7 +6,7 @@ This module is a plugin for :py:mod:`puresnmp.priv`
 from random import randint
 from typing import Generator, NamedTuple
 
-from Crypto.Cipher import DES as CDES
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 IDENTIFIER = "des"
 IANA_ID = 2
@@ -47,11 +47,11 @@ def reference_saltpot() -> Generator[int, None, None]:
     Following :rfc:`3414` this starts at a random number and increases on
     each subsequent retrieval.
     """
-    salt = randint(1, 0xffffffff - 1)
+    salt = randint(1, 0xFFFFFFFF - 1)
     while True:
         yield salt
         salt += 1
-        if salt == 0xffffffff:
+        if salt == 0xFFFFFFFF:
             salt = 0
 
 
@@ -73,15 +73,16 @@ def encrypt_data(
     pre_iv = localised_key[8:]
 
     local_salt = next(SALTPOT)
-    salt = (engine_boots & 0xff).to_bytes(4, "big") + (local_salt & 0xff).to_bytes(
+    salt = (engine_boots & 0xFF).to_bytes(4, "big") + (local_salt & 0xFF).to_bytes(
         4, "big"
     )
     init_vector = bytes(a ^ b for a, b in zip(salt, pre_iv))
     local_salt = next(SALTPOT)
 
-    cdes = CDES.new(des_key, mode=CDES.MODE_CBC, IV=init_vector)
     padded = pad_packet(data)
-    encrypted = cdes.encrypt(padded)
+    cipher = Cipher(algorithms.TripleDES(des_key), modes.CBC(init_vector))
+    encryptor = cipher.encryptor()
+    encrypted = encryptor.update(padded) + encryptor.finalize()
     return EncryptionResult(encrypted, salt)
 
 
@@ -99,6 +100,7 @@ def decrypt_data(
     des_key = localised_key[:8]
     pre_iv = localised_key[8:]
     init_vector = bytes(a ^ b for a, b in zip(salt, pre_iv))
-    cdes = CDES.new(des_key, mode=CDES.MODE_CBC, IV=init_vector)
-    decrypted = cdes.decrypt(data)
+    cipher = Cipher(algorithms.TripleDES(des_key), modes.CBC(init_vector))
+    decryptor = cipher.decryptor()
+    decrypted = decryptor.update(data) + decryptor.finalize()
     return decrypted

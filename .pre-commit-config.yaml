@@ -3,11 +3,11 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/PyCQA/isort
-    rev: master
+    rev: 5.10.1
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
-    rev: master
+    rev: 22.8.0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -18,10 +18,10 @@ repos:
       - id: check-yaml
       - id: debug-statements
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: master
+    rev: v0.971
     hooks:
       - id: mypy
   - repo: https://github.com/exhuma/pre-commit-hooks
-    rev: main
+    rev: v1.0.0
     hooks:
       - id: prevent-debug-markers
