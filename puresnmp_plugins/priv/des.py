@@ -6,7 +6,7 @@ This module is a plugin for :py:mod:`puresnmp.priv`
 from random import randint
 from typing import Generator, NamedTuple
 
-from Crypto.Cipher import DES as CDES
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 IDENTIFIER = "des"
 IANA_ID = 2
@@ -79,9 +79,10 @@ def encrypt_data(
     init_vector = bytes(a ^ b for a, b in zip(salt, pre_iv))
     local_salt = next(SALTPOT)
 
-    cdes = CDES.new(des_key, mode=CDES.MODE_CBC, IV=init_vector)
     padded = pad_packet(data)
-    encrypted = cdes.encrypt(padded)
+    cipher = Cipher(algorithms.TripleDES(des_key), modes.CBC(init_vector))
+    encryptor = cipher.encryptor()
+    encrypted = encryptor.update(padded) + encryptor.finalize()
     return EncryptionResult(encrypted, salt)
 
 
@@ -99,6 +100,7 @@ def decrypt_data(
     des_key = localised_key[:8]
     pre_iv = localised_key[8:]
     init_vector = bytes(a ^ b for a, b in zip(salt, pre_iv))
-    cdes = CDES.new(des_key, mode=CDES.MODE_CBC, IV=init_vector)
-    decrypted = cdes.decrypt(data)
+    cipher = Cipher(algorithms.TripleDES(des_key), modes.CBC(init_vector))
+    decryptor = cipher.decryptor()
+    decrypted = decryptor.update(data) + decryptor.finalize()
     return decrypted
