@@ -4,6 +4,7 @@ Plugin for :py:mod:`puresnmp` to support AES-CFB-128bit encryption for SNMPv3
 Implementation of the AES encryption ("usmAesCfb128PrivProtocol") according
 to :rfc:`3826`
 """
+
 from random import randint
 from typing import Generator, NamedTuple
 
