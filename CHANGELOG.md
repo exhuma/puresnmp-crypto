@@ -1,3 +1,10 @@
+# v1.0.1.post1 - Maintenance release
+
+This release switches to the "src" layout for the source-tree and exposes the
+internal API docs so that it can be cross-referenced from the main ``puresnmp``
+package.
+
+
 # v1.0.1 - Maintenance release
 
 This release only contains internal changes. Nothing on the external API has

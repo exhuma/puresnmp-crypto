@@ -1,15 +1,17 @@
 """
-Implementation of the DES encryption algorithm for SNMPv3
+Plugin for :py:mod:`puresnmp` to support AES-CFB-128bit encryption for SNMPv3
 
-This module is a plugin for :py:mod:`puresnmp.priv`
+Implementation of the AES encryption ("usmAesCfb128PrivProtocol") according
+to :rfc:`3826`
 """
+
 from random import randint
 from typing import Generator, NamedTuple
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-IDENTIFIER = "des"
-IANA_ID = 2
+IDENTIFIER = "aes"
+IANA_ID = 4
 
 
 class EncryptionResult(NamedTuple):
@@ -47,15 +49,31 @@ def reference_saltpot() -> Generator[int, None, None]:
     Following :rfc:`3414` this starts at a random number and increases on
     each subsequent retrieval.
     """
-    salt = randint(1, 0xFFFFFFFF - 1)
+    salt = randint(1, 0xFFFFFFFFFFFFFFFF - 1)
     while True:
         yield salt
         salt += 1
-        if salt == 0xFFFFFFFF:
+        if salt == 0xFFFFFFFFFFFFFFFF:
             salt = 0
 
 
 SALTPOT = reference_saltpot()
+
+
+def get_iv(engine_boots: int, engine_time: int, local_salt: bytes) -> bytes:
+    """
+    See https://tools.ietf.org/html/rfc3826#section-3.1.2.1
+    """
+    # IV             = xxxxxxxxxxxxxxxx
+    # | engine-boots = xxxx............ (big endian int)
+    # | engine-time  = ....xxxx........ (big endian int)
+    # | local_salt   = ........xxxxxxxx (big endian int)
+    output = (
+        engine_boots << (64 + 32)
+        | engine_time << 64
+        | int.from_bytes(local_salt, "big")
+    )
+    return output.to_bytes(16, "big")
 
 
 def encrypt_data(
@@ -66,24 +84,16 @@ def encrypt_data(
     data: bytes,
 ) -> EncryptionResult:
     """
-    See https://tools.ietf.org/html/rfc3414#section-1.6
+    See https://tools.ietf.org/html/rfc3826#section-3.1.3
     """
-
-    des_key = localised_key[:8]
-    pre_iv = localised_key[8:]
-
-    local_salt = next(SALTPOT)
-    salt = (engine_boots & 0xFF).to_bytes(4, "big") + (local_salt & 0xFF).to_bytes(
-        4, "big"
-    )
-    init_vector = bytes(a ^ b for a, b in zip(salt, pre_iv))
-    local_salt = next(SALTPOT)
-
-    padded = pad_packet(data)
-    cipher = Cipher(algorithms.TripleDES(des_key), modes.CBC(init_vector))
+    salt = next(SALTPOT).to_bytes(8, "big")
+    iv = get_iv(engine_boots, engine_time, salt)
+    aes_key = localised_key[:16]
+    padded = pad_packet(data, 16)
+    cipher = Cipher(algorithms.AES(aes_key), modes.CFB(iv))
     encryptor = cipher.encryptor()
-    encrypted = encryptor.update(padded) + encryptor.finalize()
-    return EncryptionResult(encrypted, salt)
+    output = encryptor.update(padded) + encryptor.finalize()
+    return EncryptionResult(output, salt)
 
 
 def decrypt_data(
@@ -95,12 +105,12 @@ def decrypt_data(
     data: bytes,
 ) -> bytes:
     """
-    See https://tools.ietf.org/html/rfc3414#section-1.6
+    See https://tools.ietf.org/html/rfc3826#section-3.1.4
     """
-    des_key = localised_key[:8]
-    pre_iv = localised_key[8:]
-    init_vector = bytes(a ^ b for a, b in zip(salt, pre_iv))
-    cipher = Cipher(algorithms.TripleDES(des_key), modes.CBC(init_vector))
+    iv = get_iv(engine_boots, engine_time, salt)
+    aes_key = localised_key[:16]
+    padded = pad_packet(data, 16)
+    cipher = Cipher(algorithms.AES(aes_key), modes.CFB(iv))
     decryptor = cipher.decryptor()
-    decrypted = decryptor.update(data) + decryptor.finalize()
-    return decrypted
+    output = decryptor.update(padded) + decryptor.finalize()
+    return output
