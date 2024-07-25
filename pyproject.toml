@@ -18,6 +18,8 @@ dev = [
     "mypy",
     "black",
     "pylint",
+    "sphinx",
+    "furo",
 ]
 test = [
     "pytest",
