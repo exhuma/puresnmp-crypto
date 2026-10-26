@@ -10,16 +10,11 @@ build:
   tools:
     python: "3.9"
   jobs:
-    pre_build:
-      - pip install -e .
+    post_install:
+      # Dev tools live in the "dev" dependency group (PEP 735), which needs
+      # pip >= 25.1.
+      - pip install --upgrade pip
+      - pip install -e . --group dev
 
 sphinx:
    configuration: doc/conf.py
-
-python:
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - dev
-        - readthedocs
