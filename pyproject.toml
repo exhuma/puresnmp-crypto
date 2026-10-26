@@ -5,6 +5,7 @@ description = "Implementation for SNMPv3 encryption in puresnmp"
 authors = [{name="Michel Albert", email="michel.albert@post.lu"}]
 license = {text="MIT"}
 readme = "README.rst"
+requires-python = ">=3.7"
 dependencies = [
     "cryptography >= 38.0.1",
 ]
@@ -13,17 +14,16 @@ dependencies = [
 homepage = "https://pypi.org/project/puresnmp/"
 repository = "https://github.com/exhuma/puresnmp-crypto"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
+    "pytest",
+    "pytest-cov",
     "mypy",
     "black",
     "pylint",
     "sphinx",
     "furo",
-]
-test = [
-    "pytest",
-    "pytest-cov",
+    "pre-commit",
 ]
 
 [tool.pytest.ini_options]
@@ -36,3 +36,8 @@ testpaths = [
 [build-system]
 requires = ["setuptools >= 64.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.uv.dependency-groups]
+# Current dev tooling needs a modern Python. This only limits the dev
+# environment; the published requires-python stays at the old CI floor.
+dev = { requires-python = ">=3.10" }
