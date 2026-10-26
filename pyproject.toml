@@ -5,6 +5,7 @@ description = "Implementation for SNMPv3 encryption in puresnmp"
 authors = [{name="Michel Albert", email="michel.albert@post.lu"}]
 license = {text="MIT"}
 readme = "README.rst"
+requires-python = ">=3.7"
 dependencies = [
     "cryptography >= 38.0.1",
 ]
@@ -35,3 +36,8 @@ testpaths = [
 [build-system]
 requires = ["setuptools >= 64.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.uv.dependency-groups]
+# Current dev tooling needs a modern Python. This only limits the dev
+# environment; the published requires-python stays at the old CI floor.
+dev = { requires-python = ">=3.10" }

@@ -91,16 +91,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # The package declares no requires-python, so uv derives the lock's
-      # Python range from the interpreter. "--locked" would therefore fail on
-      # any interpreter other than the one in .python-version; "--frozen"
-      # installs exactly what uv.lock says. The lock itself is verified in the
-      # lint job.
       - name: Install dependencies
-        run: uv sync --frozen --python '${{ steps.python.outputs.python-path }}'
+        run: uv sync --locked --python '${{ steps.python.outputs.python-path }}'
 
       - name: Run unit tests
-        run: uv run --frozen pytest --tb=short
+        run: uv run --locked pytest --tb=short
 
   prerelease:
     name: Test (upcoming Python ${{ needs.versions.outputs.next }}, may fail)
@@ -129,11 +124,11 @@ jobs:
 
       - name: Install dependencies
         if: steps.python.outcome == 'success'
-        run: uv sync --frozen --python '${{ steps.python.outputs.python-path }}'
+        run: uv sync --locked --python '${{ steps.python.outputs.python-path }}'
 
       - name: Run unit tests
         if: steps.python.outcome == 'success'
-        run: uv run --frozen pytest --tb=short
+        run: uv run --locked pytest --tb=short
 
   quality-control:
     runs-on: ubuntu-latest
@@ -144,8 +139,6 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v10.3.2
 
-      # Uses the interpreter pinned in .python-version, which is the one the
-      # lock was created with.
       - name: Check that uv.lock is up to date
         run: uv lock --check
 
