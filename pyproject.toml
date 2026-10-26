@@ -13,17 +13,16 @@ dependencies = [
 homepage = "https://pypi.org/project/puresnmp/"
 repository = "https://github.com/exhuma/puresnmp-crypto"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
+    "pytest",
+    "pytest-cov",
     "mypy",
     "black",
     "pylint",
     "sphinx",
     "furo",
-]
-test = [
-    "pytest",
-    "pytest-cov",
+    "pre-commit",
 ]
 
 [tool.pytest.ini_options]
